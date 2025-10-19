@@ -35,8 +35,13 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button variant="hero" size="lg" className="group">
-              Comece agora
+            <Button 
+              variant="hero" 
+              size="lg" 
+              className="group"
+              onClick={() => window.location.href = '/chat'}
+            >
+              Falar com IA
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button variant="hero-outline" size="lg">

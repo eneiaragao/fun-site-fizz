@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Send, Bot, User, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const ChatBot = () => {
@@ -35,8 +34,20 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("chat-gpt", {
-        body: {
+      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      
+      if (!apiKey) {
+        throw new Error('Chave API do OpenAI não configurada');
+      }
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: "system",
@@ -48,11 +59,16 @@ const ChatBot = () => {
             })),
             userMessage,
           ],
-        },
+          temperature: 0.7,
+          max_tokens: 500,
+        }),
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Erro da API OpenAI: ${response.status}`);
+      }
 
+      const data = await response.json();
       const assistantMessage = {
         role: "assistant",
         content: data.choices[0].message.content,
